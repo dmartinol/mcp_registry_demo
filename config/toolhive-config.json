@@ -1,0 +1,57 @@
+{
+  "toolhive": {
+    "name": "mcp-toolhive",
+    "version": "0.1.0",
+    "description": "ToolHive configuration for MCP Registry",
+    "operator": {
+      "namespace": "mcp-registry",
+      "reconcileInterval": "60s",
+      "workers": 3
+    },
+    "registry": {
+      "url": "http://mcp-registry.mcp-registry.svc.cluster.local:8080",
+      "api": {
+        "version": "v1",
+        "timeout": "30s"
+      },
+      "sync": {
+        "enabled": true,
+        "interval": "5m"
+      }
+    },
+    "tools": {
+      "autoInstall": false,
+      "updatePolicy": "manual",
+      "validation": {
+        "enabled": true,
+        "strict": false
+      }
+    },
+    "security": {
+      "podSecurityContext": {
+        "runAsNonRoot": true,
+        "seccompProfile": {
+          "type": "RuntimeDefault"
+        }
+      },
+      "containerSecurityContext": {
+        "allowPrivilegeEscalation": false,
+        "capabilities": {
+          "drop": ["ALL"]
+        }
+      }
+    },
+    "monitoring": {
+      "enabled": true,
+      "prometheus": {
+        "enabled": true,
+        "port": 9090
+      },
+      "metrics": [
+        "tool_installations_total",
+        "tool_updates_total",
+        "registry_sync_duration_seconds"
+      ]
+    }
+  }
+}

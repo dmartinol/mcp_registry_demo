@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mcp-registry
+  labels:
+    name: mcp-registry
+    app: mcp-registry-demo
+  annotations:
+    openshift.io/display-name: "MCP Registry"
+    openshift.io/description: "Namespace for MCP Registry and ToolHive operator"

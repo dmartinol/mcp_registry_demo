@@ -1,0 +1,95 @@
+{
+  "tools": [
+    {
+      "name": "filesystem-tool",
+      "version": "1.0.0",
+      "description": "Tool for filesystem operations",
+      "type": "mcp",
+      "capabilities": [
+        "read_file",
+        "write_file",
+        "list_directory"
+      ],
+      "configuration": {
+        "basePath": "/tmp",
+        "maxFileSize": "10MB"
+      },
+      "metadata": {
+        "author": "MCP Community",
+        "license": "Apache-2.0",
+        "repository": "https://github.com/modelcontextprotocol/filesystem-tool"
+      }
+    },
+    {
+      "name": "git-tool",
+      "version": "1.2.0",
+      "description": "Tool for Git repository operations",
+      "type": "mcp",
+      "capabilities": [
+        "clone_repository",
+        "commit_changes",
+        "push_changes",
+        "pull_changes"
+      ],
+      "configuration": {
+        "defaultBranch": "main",
+        "credentials": {
+          "type": "ssh-key"
+        }
+      },
+      "metadata": {
+        "author": "MCP Community",
+        "license": "MIT",
+        "repository": "https://github.com/modelcontextprotocol/git-tool"
+      }
+    },
+    {
+      "name": "database-tool",
+      "version": "2.0.1",
+      "description": "Tool for database operations",
+      "type": "mcp",
+      "capabilities": [
+        "query",
+        "insert",
+        "update",
+        "delete"
+      ],
+      "configuration": {
+        "driver": "postgresql",
+        "connectionPool": {
+          "minSize": 2,
+          "maxSize": 10
+        }
+      },
+      "metadata": {
+        "author": "Database Team",
+        "license": "Apache-2.0",
+        "repository": "https://github.com/modelcontextprotocol/database-tool"
+      }
+    },
+    {
+      "name": "http-client-tool",
+      "version": "1.5.0",
+      "description": "Tool for making HTTP requests",
+      "type": "mcp",
+      "capabilities": [
+        "get",
+        "post",
+        "put",
+        "delete"
+      ],
+      "configuration": {
+        "timeout": "30s",
+        "retries": 3,
+        "headers": {
+          "User-Agent": "MCP-HTTP-Tool/1.5.0"
+        }
+      },
+      "metadata": {
+        "author": "HTTP Team",
+        "license": "MIT",
+        "repository": "https://github.com/modelcontextprotocol/http-client-tool"
+      }
+    }
+  ]
+}

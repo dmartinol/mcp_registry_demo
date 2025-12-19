@@ -1,0 +1,46 @@
+{
+  "registry": {
+    "name": "mcp-registry",
+    "version": "1.0.0",
+    "description": "Central registry for Model Context Protocol tools",
+    "metadata": {
+      "maintainer": "OpenShift Demo Team",
+      "created": "2024-01-01",
+      "environment": "openshift"
+    },
+    "storage": {
+      "type": "filesystem",
+      "path": "/data/registry",
+      "backup": {
+        "enabled": true,
+        "schedule": "0 2 * * *",
+        "retention": "30d"
+      }
+    },
+    "api": {
+      "version": "v1",
+      "port": 8080,
+      "host": "0.0.0.0",
+      "cors": {
+        "enabled": true,
+        "origins": ["*"]
+      },
+      "rateLimit": {
+        "enabled": true,
+        "requestsPerMinute": 100
+      }
+    },
+    "features": {
+      "authentication": false,
+      "authorization": false,
+      "versioning": true,
+      "validation": true,
+      "audit": true
+    },
+    "logging": {
+      "level": "info",
+      "format": "json",
+      "output": "stdout"
+    }
+  }
+}
