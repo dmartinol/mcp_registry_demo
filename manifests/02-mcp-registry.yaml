@@ -122,12 +122,39 @@ data:
     """
     import json
     import os
+    import re
     from flask import Flask, jsonify, request
     from pathlib import Path
 
     app = Flask(__name__)
     REGISTRY_PATH = Path("/data/registry")
     REGISTRY_PATH.mkdir(parents=True, exist_ok=True)
+
+    def is_valid_tool_name(name):
+        """Validate tool name to prevent path traversal attacks."""
+        if not name or not isinstance(name, str):
+            return False
+        # Allow only alphanumeric, hyphens, and underscores
+        if not re.match(r'^[a-zA-Z0-9_-]+$', name):
+            return False
+        # Prevent path traversal attempts
+        if '..' in name or '/' in name or '\\' in name:
+            return False
+        return True
+
+    def get_tool_path(tool_name):
+        """Safely construct tool file path."""
+        if not is_valid_tool_name(tool_name):
+            return None
+        tool_file = REGISTRY_PATH / f"{tool_name}.json"
+        # Ensure the resolved path is within REGISTRY_PATH
+        try:
+            tool_file = tool_file.resolve()
+            if not str(tool_file).startswith(str(REGISTRY_PATH.resolve())):
+                return None
+        except (OSError, RuntimeError):
+            return None
+        return tool_file
 
     @app.route('/health')
     def health():
@@ -142,28 +169,54 @@ data:
         tools = []
         if REGISTRY_PATH.exists():
             for tool_file in REGISTRY_PATH.glob("*.json"):
-                with open(tool_file) as f:
-                    tools.append(json.load(f))
+                try:
+                    with open(tool_file) as f:
+                        tools.append(json.load(f))
+                except (json.JSONDecodeError, IOError) as e:
+                    app.logger.error(f"Error reading {tool_file}: {e}")
+                    continue
         return jsonify({"tools": tools}), 200
 
     @app.route('/api/v1/tools/<tool_name>', methods=['GET'])
     def get_tool(tool_name):
-        tool_file = REGISTRY_PATH / f"{tool_name}.json"
+        tool_file = get_tool_path(tool_name)
+        if not tool_file:
+            return jsonify({"error": "Invalid tool name"}), 400
+        
         if tool_file.exists():
-            with open(tool_file) as f:
-                return jsonify(json.load(f)), 200
+            try:
+                with open(tool_file) as f:
+                    return jsonify(json.load(f)), 200
+            except (json.JSONDecodeError, IOError) as e:
+                app.logger.error(f"Error reading tool {tool_name}: {e}")
+                return jsonify({"error": "Error reading tool data"}), 500
         return jsonify({"error": "Tool not found"}), 404
 
     @app.route('/api/v1/tools', methods=['POST'])
     def create_tool():
-        tool_data = request.get_json()
+        try:
+            tool_data = request.get_json()
+        except Exception as e:
+            return jsonify({"error": "Invalid JSON data"}), 400
+        
+        if not tool_data:
+            return jsonify({"error": "Request body required"}), 400
+        
         tool_name = tool_data.get("name")
         if not tool_name:
             return jsonify({"error": "Tool name required"}), 400
         
-        tool_file = REGISTRY_PATH / f"{tool_name}.json"
-        with open(tool_file, 'w') as f:
-            json.dump(tool_data, f, indent=2)
+        tool_file = get_tool_path(tool_name)
+        if not tool_file:
+            return jsonify({"error": "Invalid tool name. Use only alphanumeric, hyphens, and underscores"}), 400
+        
+        try:
+            with open(tool_file, 'w') as f:
+                json.dump(tool_data, f, indent=2)
+        except (IOError, OSError) as e:
+            app.logger.error(f"Error writing tool {tool_name}: {e}")
+            return jsonify({"error": "Error saving tool data"}), 500
+        
         return jsonify({"message": "Tool created", "tool": tool_data}), 201
 
     if __name__ == '__main__':
