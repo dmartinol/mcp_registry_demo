@@ -1,0 +1,12 @@
+# Python dependencies for MCP Registry Demo notebooks
+# Install with: pip install -r requirements.txt
+
+# HTTP client library for API requests
+requests>=2.31.0
+
+# Required for registering virtual environment as Jupyter kernel
+ipykernel>=6.0.0
+
+# Optional: Full Jupyter installation (if running notebooks locally)
+# jupyter>=1.0.0
+
