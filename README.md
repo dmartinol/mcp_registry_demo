@@ -29,6 +29,30 @@ pip install -r requirements.txt
 - `helm` - Helm CLI (for installing the ToolHive operator)
 - `yq` - YAML processor (optional, for parsing YAML output)
 
+## Project Structure
+
+The project includes a shared utility library to avoid code duplication:
+
+```
+mcp_registry_demo/
+├── lib/
+│   ├── __init__.py
+│   └── registry_client.py    # Shared registry API client
+├── notebooks/                # Jupyter notebooks
+│   ├── 01-setup.ipynb
+│   ├── 02-deploy-registry.ipynb
+│   └── ...
+├── manifests/                # Kubernetes/OpenShift manifests
+├── catalogs/                 # MCP catalog JSON files
+└── requirements.txt
+```
+
+The `lib/registry_client.py` module provides:
+- `RegistryClient` class for interacting with the MCP Registry API
+- Helper functions: `print_server_details()`, `print_server_cards()`
+
+Notebooks automatically add the `lib` directory to the Python path, so you can import these utilities directly.
+
 ## Notebooks
 
 * [Setup ToolHive operator](./notebooks/01-setup.ipynb)
