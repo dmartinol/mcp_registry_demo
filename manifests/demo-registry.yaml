@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: demo-registry-db-password
+type: Opaque
+stringData:
+  user-password: app_password
+  migrator-password: migrator_password
+---
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: MCPRegistry
+metadata:
+  name: demo-registry
+  namespace: toolhive-system
+spec:
+  displayName: "ToolHive Official Registry (Git)"
+  registries:
+    - name: rh-one-mcp
+      format: toolhive
+      configMapRef:
+        name: rh-one-mcp
+        key: registry.json
+      syncPolicy:
+        interval: "1h"
+    - name: rh-catalog-mcp
+      format: toolhive
+      configMapRef:
+        name: rh-catalog-mcp
+        key: registry.json
+      syncPolicy:
+        interval: "1h"
+    - name: rh-partners-mcp
+      format: toolhive
+      configMapRef:
+        name: rh-partners-mcp
+        key: registry.json
+      syncPolicy:
+        interval: "1h"
+    - name: toolhive
+      format: toolhive
+      git:
+        repository: "https://github.com/stacklok/toolhive"
+        branch: "main"
+        path: "pkg/registry/data/registry.json"
+      syncPolicy:
+        interval: "1h"
+      filter:
+        tags:
+          include:
+            - "database"
+            - "filesystem"
+            - "api"
+          exclude:
+            - "experimental"
+  databaseConfig:
+    host: demo-db-rw.toolhive-system.svc.cluster.local
+    port: 5432
+    user: db_app
+    migrationUser: db_migrator
+    database: registry
+    sslMode: require
+    dbAppUserPasswordSecretRef:
+      name: demo-registry-db-password
+      key: user-password
+    dbMigrationUserPasswordSecretRef:
+      name: demo-registry-db-password
+      key: migrator-password
